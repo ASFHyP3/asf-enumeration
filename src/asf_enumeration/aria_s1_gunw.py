@@ -229,36 +229,38 @@ def get_acquisition(frame: int | AriaFrame, date: datetime.date) -> Sentinel1Acq
     return acquisition
 
 
-def product_exists(frame: int | AriaFrame, reference_date: datetime.date, secondary_date: datetime.date) -> bool:
+def product_exists(reference_date: datetime.date, secondary_date: datetime.date, frame_id: int) -> bool:
     """Check if ARIA product already exists.
 
     Args:
-        frame: ARIA frame ID or frame object
         reference_date: Reference date of the product
         secondary_date: Secondary date of the product
+        frame_id: ARIA frame ID
 
     Returns:
-        exists_in_archive: whether the product already exists in ASF's archive
+        Whether the product already exists in ASF's archive
 
     """
-    if isinstance(frame, AriaFrame):
-        frame = frame.id
+    return get_product(reference_date, secondary_date, frame_id) is not None
 
-    _validate_frame_id(frame)
+
+def get_product(reference_date: datetime.date, secondary_date: datetime.date, frame_id: int) -> asf.ASFProduct | None:
+    _validate_frame_id(frame_id)
     date_buffer = datetime.timedelta(days=1)
 
     results = asf.search(
         dataset=asf.constants.DATASET.ARIA_S1_GUNW,
-        frame=frame,
+        frame=frame_id,
         start=reference_date - date_buffer,
         end=reference_date + date_buffer,
     )
 
-    exists_in_archive = any(
-        _gunw_dates_match(result.properties['sceneName'], reference_date, secondary_date) for result in results
-    )
+    for result in results:
+        # TODO: can we assume at most one matching result?
+        if _gunw_dates_match(result.properties['sceneName'], reference_date, secondary_date):
+            return result
 
-    return exists_in_archive
+    return None
 
 
 def _gunw_dates_match(granule: str, reference: datetime.date, secondary: datetime.date) -> bool:
