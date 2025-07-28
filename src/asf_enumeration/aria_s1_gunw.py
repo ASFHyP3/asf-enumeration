@@ -39,7 +39,7 @@ class AriaFrame:
         Returns:
             does_intersect: if the frame instersects the geometry
         """
-        return shapely.intersects(self.polygon, geometry)
+        return bool(shapely.intersects(self.polygon, geometry))
 
     @property
     def wkt(self) -> str:
