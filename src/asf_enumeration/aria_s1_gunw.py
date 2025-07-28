@@ -229,6 +229,9 @@ def get_acquisition(frame: int | AriaFrame, date: datetime.date) -> Sentinel1Acq
     return acquisition
 
 
+# TODO: for addressing https://github.com/ASFHyP3/asf-enumeration/issues/10,
+#  reference and secondary date type is str in SDK but is datetime.date here,
+#  we'll need to resolve that
 def product_exists(reference_date: datetime.date, secondary_date: datetime.date, frame_id: int) -> bool:
     """Check if ARIA product already exists.
 
