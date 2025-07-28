@@ -248,6 +248,16 @@ def product_exists(reference_date: datetime.date, secondary_date: datetime.date,
 
 
 def get_product(reference_date: datetime.date, secondary_date: datetime.date, frame_id: int) -> asf.ASFProduct | None:
+    """Get the ARIA product for the given parameters, if it exists.
+
+    Args:
+        reference_date: Reference date of the product
+        secondary_date: Secondary date of the product
+        frame_id: ARIA frame ID
+
+    Returns:
+        The product if it exists, otherwise None.
+    """
     _validate_frame_id(frame_id)
     date_buffer = datetime.timedelta(days=1)
 
