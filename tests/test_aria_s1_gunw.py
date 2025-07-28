@@ -120,12 +120,10 @@ def test_acquisition_from_standard_products():
 
 @pytest.mark.network
 def test_product_exists():
-    frame = aria_s1_gunw.get_frame(25388)
     # 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'
-    assert aria_s1_gunw.product_exists(frame, date(2025, 5, 27), date(2025, 5, 3))
-    assert aria_s1_gunw.product_exists(frame.id, date(2025, 5, 27), date(2025, 5, 3))
+    assert aria_s1_gunw.product_exists(date(2025, 5, 27), date(2025, 5, 3), 25388)
 
-    assert not aria_s1_gunw.product_exists(25388, date(2025, 5, 26), date(2025, 5, 3))
+    assert not aria_s1_gunw.product_exists(date(2025, 5, 26), date(2025, 5, 3), 25388)
 
 
 def test_gunw_dates_match():
