@@ -43,7 +43,8 @@ The `asf_enumeration.aria_s1_gunw` module exposes these functions
    - `get_frame` get a single ARIA frame based on it's ID
    - `get_acquisitions` get all Sentinel-1 acquisitions for a given ARIA frame
    - `get_acquisition` get a Sentinel-1 acquisition for a given ARIA frame and date
-   - `product_exists` check if an ARIA product exists in the ASF archive given an ARIA frame, reference date and secondary date
+   - `get_product` get an ARIA product for a given reference date, secondary date, and ARIA frame, if the product exists
+   - `product_exists` check if an ARIA product exists in the ASF archive given reference date, secondary date, and ARIA frame
 
 ### Getting Frames
 
@@ -76,15 +77,23 @@ An acquisition for a specific date can be found using `aria_s1_gunw.get_acquisit
 single_acquisition = aria_s1_gunw.get_acquisition(frame=9852, date=datetime.date(2014, 11, 3))
 ```
 
+### Getting Products
+
+`aria_s1_gunw.get_product` gets an ARIA product from the ASF archive if it exists.
+
+```python
+# S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1
+product = aria_s1_gunw.get_product(datetime.date(2025, 5, 27), datetime.date(2025, 5, 3), 25388)
+```
+
 ### Checking if a Product Exists
 
 `aria_s1_gunw.product_exists` checks if an ARIA product already exists in the ASF archive
 
 ```python
-    # S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1
-    aria_s1_gunw.product_exists(25388, datetime.date(2025, 5, 27), datetime.date(2025, 5, 3))
+# S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1
+aria_s1_gunw.product_exists(datetime.date(2025, 5, 27), datetime.date(2025, 5, 3), 25388)
 ```
-
 
 ## Development
 
