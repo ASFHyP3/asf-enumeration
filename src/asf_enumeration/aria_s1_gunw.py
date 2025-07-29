@@ -278,10 +278,10 @@ def get_product(
         for result in results
         if _gunw_dates_match(result.properties['sceneName'], reference_date, secondary_date)
     ]
-    if results:
-        return max(results, key=lambda product: product.meta['revision-date'])
+    if not results:
+        return None
 
-    return None
+    return max(results, key=lambda product: product.meta['revision-date'])
 
 
 def _gunw_dates_match(granule: str, reference: datetime.date, secondary: datetime.date) -> bool:
