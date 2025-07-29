@@ -247,7 +247,6 @@ def product_exists(reference_date: datetime.date, secondary_date: datetime.date,
     return get_product(reference_date, secondary_date, frame_id) is not None
 
 
-# TODO: add tests
 def get_product(reference_date: datetime.date, secondary_date: datetime.date, frame_id: int) -> asf.ASFProduct | None:
     """Get the ARIA product for the given parameters, if it exists.
 
