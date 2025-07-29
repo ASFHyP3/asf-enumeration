@@ -229,15 +229,12 @@ def get_acquisition(frame: int | AriaFrame, date: datetime.date) -> Sentinel1Acq
     return acquisition
 
 
-# TODO: for addressing https://github.com/ASFHyP3/asf-enumeration/issues/10,
-#  reference and secondary date type is str in SDK but is datetime.date here,
-#  we'll need to resolve that
-def product_exists(reference_date: datetime.date, secondary_date: datetime.date, frame_id: int) -> bool:
+def product_exists(reference_date: datetime.date | str, secondary_date: datetime.date | str, frame_id: int) -> bool:
     """Check if ARIA product already exists.
 
     Args:
-        reference_date: Reference date of the product
-        secondary_date: Secondary date of the product
+        reference_date: Reference date of the product as a `datetime.date` object or a date string in ISO format
+        secondary_date: Secondary date of the product as a `datetime.date` object or a date string in ISO format
         frame_id: ARIA frame ID
 
     Returns:
@@ -247,18 +244,27 @@ def product_exists(reference_date: datetime.date, secondary_date: datetime.date,
     return get_product(reference_date, secondary_date, frame_id) is not None
 
 
-def get_product(reference_date: datetime.date, secondary_date: datetime.date, frame_id: int) -> asf.ASFProduct | None:
+def get_product(
+    reference_date: datetime.date | str, secondary_date: datetime.date | str, frame_id: int
+) -> asf.ASFProduct | None:
     """Get the ARIA product for the given parameters, if it exists.
 
     Args:
-        reference_date: Reference date of the product
-        secondary_date: Secondary date of the product
+        reference_date: Reference date of the product as a `datetime.date` object or a date string in ISO format
+        secondary_date: Secondary date of the product as a `datetime.date` object or a date string in ISO format
         frame_id: ARIA frame ID
 
     Returns:
         The product if it exists, otherwise None.
     """
+    if isinstance(reference_date, str):
+        reference_date = datetime.date.fromisoformat(reference_date)
+
+    if isinstance(secondary_date, str):
+        secondary_date = datetime.date.fromisoformat(secondary_date)
+
     _validate_frame_id(frame_id)
+
     date_buffer = datetime.timedelta(days=1)
 
     results = asf.search(

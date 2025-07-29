@@ -123,8 +123,10 @@ def test_acquisition_from_standard_products():
 def test_product_exists():
     # 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'
     assert aria_s1_gunw.product_exists(date(2025, 5, 27), date(2025, 5, 3), 25388)
+    assert aria_s1_gunw.product_exists('2025-05-27', '2025-05-03', 25388)
 
     assert not aria_s1_gunw.product_exists(date(2025, 5, 26), date(2025, 5, 3), 25388)
+    assert not aria_s1_gunw.product_exists('2025-05-26', '2025-05-03', 25388)
 
     with pytest.raises(AriaEnumerationError, match=r'^Frame ID is out of range'):
         aria_s1_gunw.get_product(date(2025, 5, 27), date(2025, 5, 3), 27398)
@@ -138,7 +140,14 @@ def test_get_product():
         product.properties['sceneName'] == 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'
     )
 
+    product = aria_s1_gunw.get_product('2025-05-27', '2025-05-03', 25388)
+    assert product is not None
+    assert (
+        product.properties['sceneName'] == 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'
+    )
+
     assert aria_s1_gunw.get_product(date(2025, 5, 26), date(2025, 5, 3), 25388) is None
+    assert aria_s1_gunw.get_product('2025-05-26', '2025-05-03', 25388) is None
 
     with pytest.raises(AriaEnumerationError, match=r'^Frame ID is out of range'):
         aria_s1_gunw.get_product(date(2025, 5, 27), date(2025, 5, 3), 27398)
