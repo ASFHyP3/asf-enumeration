@@ -28,7 +28,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Fixes https://github.com/ASFHyP3/asf-enumeration/issues/10
 
 ### Fixed
-- `asf_enumeration.aria_s1_gunw.AriaFrame.does_intersect` now returns a `bool` rather than a `numpy.bool` so as to match the return type annotation.
+- `aria_s1_gunw.AriaFrame.does_intersect` now returns a `bool` rather than a `numpy.bool` so as to match the return type annotation.
 
 ## [0.1.0]
 
