@@ -1,6 +1,8 @@
 import re
+import unittest.mock
 from datetime import date
 
+import asf_search as asf
 import pytest
 import shapely
 
@@ -151,6 +153,33 @@ def test_get_product():
 
     with pytest.raises(AriaEnumerationError, match=r'^Frame ID is out of range'):
         aria_s1_gunw.get_product(date(2025, 5, 27), date(2025, 5, 3), 27398)
+
+
+def test_get_product_multiple_results():
+    with unittest.mock.patch.object(asf, 'search') as mock_asf_search:
+        matching_product1 = unittest.mock.MagicMock(
+            properties={'sceneName': 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'},
+            meta={'revision-date': '2025-06-19'},
+        )
+        matching_product2 = unittest.mock.MagicMock(
+            properties={'sceneName': 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'},
+            meta={'revision-date': '2025-06-21'},
+        )
+        matching_product3 = unittest.mock.MagicMock(
+            properties={'sceneName': 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'},
+            meta={'revision-date': '2025-06-20'},
+        )
+        non_matching_product = unittest.mock.MagicMock(
+            properties={'sceneName': 'S1-GUNW-D-R-163-tops-20250528_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'},
+            meta={'revision-date': '2025-06-22'},
+        )
+        mock_asf_search.return_value = asf.ASFSearchResults(
+            [matching_product1, matching_product2, matching_product3, non_matching_product]
+        )
+
+        product = aria_s1_gunw.get_product(date(2025, 5, 27), date(2025, 5, 3), 25388)
+
+        assert product is matching_product2
 
 
 def test_gunw_dates_match():

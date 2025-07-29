@@ -273,11 +273,13 @@ def get_product(
         start=reference_date - date_buffer,
         end=reference_date + date_buffer,
     )
-
-    for result in results:
-        # TODO: can we assume at most one matching result?
-        if _gunw_dates_match(result.properties['sceneName'], reference_date, secondary_date):
-            return result
+    results = [
+        result
+        for result in results
+        if _gunw_dates_match(result.properties['sceneName'], reference_date, secondary_date)
+    ]
+    if results:
+        return max(results, key=lambda product: product.meta['revision-date'])
 
     return None
 
