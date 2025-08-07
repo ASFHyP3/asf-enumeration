@@ -65,6 +65,20 @@ class Sentinel1Acquisition:
     frame: AriaFrame
     products: list[asf.ASFProduct]
 
+    @property
+    def frame_overlap_ratio(self) -> float:
+        """Get the overlap ratio of acquistion with the ARIA frame.
+
+        Returns:
+            overlap_ratio: overlap ratio with ARIA frame
+        """
+        slc_shapes = [shapely.geometry.shape(r.geojson()['geometry']) for r in self.products]
+        acqusition_footprint = shapely.ops.unary_union(slc_shapes)
+
+        overlap_ratio = self.frame.polygon.intersection(acqusition_footprint).area / self.frame.polygon.area
+
+        return overlap_ratio
+
 
 class AriaEnumerationError(Exception):
     """Exception for errors with ARIA S1 GUNW enumeration."""
@@ -150,11 +164,12 @@ def get_frame(frame_id: int) -> AriaFrame:
     return FRAMES_BY_ID[frame_id]
 
 
-def get_acquisitions(frame: int | AriaFrame) -> list[Sentinel1Acquisition]:
+def get_acquisitions(frame: int | AriaFrame, overlap_threshold: float | None = None) -> list[Sentinel1Acquisition]:
     """Get all the possible Sentinel-1 aquisitions over a given ARIA frame ID.
 
     Args:
         frame: the ARIA frame ID or frame object to get the aquisitions from
+        overlap_threshold: the amount the acqusition needs to overlap with the ARIA frame
 
     Returns:
         aquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
@@ -164,8 +179,11 @@ def get_acquisitions(frame: int | AriaFrame) -> list[Sentinel1Acquisition]:
 
     granules = _get_granules_for(frame)
     aquisitions = _get_acquisitions_from(granules, frame)
-    aquisitions.sort(key=lambda group: group.date)
 
+    if overlap_threshold is not None:
+        aquisitions = [aquisition for aquisition in aquisitions if aquisition.frame_overlap_ratio >= overlap_threshold]
+
+    aquisitions.sort(key=lambda group: group.date)
     return aquisitions
 
 

@@ -194,3 +194,8 @@ def test_gunw_dates_match():
         date(2024, 5, 27),
         date(2024, 5, 3),
     )
+
+
+def test_frame_overlap_ratio():
+    aq = aria_s1_gunw.get_acquisition(25502, date=date(year=2022, month=2, day=12))
+    assert aq.frame_overlap_ratio >= 0.9
