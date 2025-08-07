@@ -196,6 +196,12 @@ def test_gunw_dates_match():
     )
 
 
-def test_frame_overlap_ratio():
+def test_acquisition_frame_coverage():
     aq = aria_s1_gunw.get_acquisition(25502, date=date(year=2022, month=2, day=12))
-    assert aq.frame_overlap_ratio >= 0.9
+    assert aq.frame_coverage >= 0.9
+
+
+def test_min_frame_coverage():
+    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
+    print(aqs, len(aqs))
+    assert len(aqs)
