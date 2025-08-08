@@ -180,7 +180,7 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
     aquisitions = _get_acquisitions_from(granules, frame)
 
     if min_frame_coverage is not None:
-        aquisitions = [aquisition for aquisition in aquisitions if aquisition.frame_coverage >= min_frame_coverage]
+        aquisitions = [aquisition for aquisition in aquisitions if aquisition.frame_coverage > min_frame_coverage]
 
     aquisitions.sort(key=lambda group: group.date)
     return aquisitions

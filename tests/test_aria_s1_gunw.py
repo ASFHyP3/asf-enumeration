@@ -208,16 +208,26 @@ def test_acquisition_frame_coverage(search_mock, acqusition_geojson):
 
     search_mock.return_value = asf.ASFSearchResults(results)
     aq = aria_s1_gunw.get_acquisition(25502, date=date(year=2022, month=2, day=12))
-    assert aq.frame_coverage >= 0.9
+    assert aq.frame_coverage >= 1.0000000000000007
+
+
+@unittest.mock.patch.object(aria_s1_gunw, '_get_acquisitions_from')
+@unittest.mock.patch.object(aria_s1_gunw, '_get_granules_for')
+def test_get_acquisitions_min_frame_coverage(get_granules_mock, get_acqusitions_from_mock):
+    get_acqusitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.89, date=1) for _ in range(10)]
+    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
+    assert len(aqs) == 0
+
+    get_acqusitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.9, date=1) for _ in range(10)]
+    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
+    assert len(aqs) == 0
+
+    get_acqusitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.91, date=1) for _ in range(10)]
+    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
+    assert len(aqs) == 10
 
 
 @pytest.fixture
 def acqusition_geojson():
     with (Path(__file__).parent / 'data' / 'acquisition_geojson.json').open() as f:
         return json.load(f)
-
-
-@pytest.network
-def test_min_frame_coverage():
-    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
-    assert len(aqs)
