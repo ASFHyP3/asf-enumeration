@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [PEP 440](https://www.python.org/dev/peps/pep-0440/)
 and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0]
+
+### Added
+- Add property `Sentinel1Acquisition.frame_coverage`
+- Add `min_frame_coverage` parameter `aria_s1_gunw.get_acqusitions` to filter by frame overlap
+
 ## [0.2.0]
 
 ### Added

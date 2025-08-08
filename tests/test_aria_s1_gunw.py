@@ -1,6 +1,8 @@
+import json
 import re
 import unittest.mock
 from datetime import date
+from pathlib import Path
 
 import asf_search as asf
 import pytest
@@ -196,12 +198,26 @@ def test_gunw_dates_match():
     )
 
 
-def test_acquisition_frame_coverage():
+@unittest.mock.patch('asf_search.search')
+def test_acquisition_frame_coverage(search_mock, acqusition_geojson):
+    results = []
+    for geojson in acqusition_geojson:
+        product = unittest.mock.MagicMock()
+        product.geojson.return_value = geojson
+        results.append(product)
+
+    search_mock.return_value = asf.ASFSearchResults(results)
     aq = aria_s1_gunw.get_acquisition(25502, date=date(year=2022, month=2, day=12))
     assert aq.frame_coverage >= 0.9
 
 
+@pytest.fixture
+def acqusition_geojson():
+    with (Path(__file__).parent / 'data' / 'acquisition_geojson.json').open() as f:
+        return json.load(f)
+
+
+@pytest.network
 def test_min_frame_coverage():
     aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
-    print(aqs, len(aqs))
     assert len(aqs)

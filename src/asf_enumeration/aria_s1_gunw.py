@@ -72,7 +72,7 @@ class Sentinel1Acquisition:
         Returns:
             frame_coverage: coverage ratio with ARIA frame
         """
-        slc_shapes = [shapely.geometry.shape(r.geojson()['geometry']) for r in self.products]
+        slc_shapes = [shapely.geometry.shape(slc.geojson()['geometry']) for slc in self.products]
         acqusition_footprint = shapely.ops.unary_union(slc_shapes)  # type: ignore
         frame_coverage = self.frame.polygon.intersection(acqusition_footprint).area / self.frame.polygon.area
 
