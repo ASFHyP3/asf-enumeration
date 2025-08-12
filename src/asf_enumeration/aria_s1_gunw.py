@@ -9,6 +9,7 @@ from dataclasses import dataclass
 
 import asf_search as asf
 import shapely
+from shapely import ops
 
 
 FlightDirections = typing.Literal['ASCENDING', 'DESCENDING']
@@ -73,8 +74,8 @@ class Sentinel1Acquisition:
             frame_coverage: coverage ratio with ARIA frame
         """
         slc_shapes = [shapely.geometry.shape(slc.geojson()['geometry']) for slc in self.products]
-        acqusition_footprint = shapely.ops.unary_union(slc_shapes)  # type: ignore
-        frame_coverage = self.frame.polygon.intersection(acqusition_footprint).area / self.frame.polygon.area
+        acquisition_footprint = ops.unary_union(slc_shapes)
+        frame_coverage = self.frame.polygon.intersection(acquisition_footprint).area / self.frame.polygon.area
 
         return frame_coverage
 
@@ -164,26 +165,26 @@ def get_frame(frame_id: int) -> AriaFrame:
 
 
 def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = None) -> list[Sentinel1Acquisition]:
-    """Get all the possible Sentinel-1 aquisitions over a given ARIA frame ID.
+    """Get all the possible Sentinel-1 acquisitions over a given ARIA frame ID.
 
     Args:
-        frame: the ARIA frame ID or frame object to get the aquisitions from
+        frame: the ARIA frame ID or frame object to get the acquisitions from
         min_frame_coverage: the amount the acquisition needs to overlap with the ARIA frame
 
     Returns:
-        aquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
+        acquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
     """
     if isinstance(frame, int):
         frame = get_frame(frame)
 
     granules = _get_granules_for(frame)
-    aquisitions = _get_acquisitions_from(granules, frame)
+    acquisitions = _get_acquisitions_from(granules, frame)
 
     if min_frame_coverage is not None:
-        aquisitions = [aquisition for aquisition in aquisitions if aquisition.frame_coverage > min_frame_coverage]
+        acquisitions = [acquisition for acquisition in acquisitions if acquisition.frame_coverage > min_frame_coverage]
 
-    aquisitions.sort(key=lambda group: group.date)
-    return aquisitions
+    acquisitions.sort(key=lambda group: group.date)
+    return acquisitions
 
 
 def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> asf.ASFSearchResults:
