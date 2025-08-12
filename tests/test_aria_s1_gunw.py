@@ -223,7 +223,7 @@ def test_get_acquisitions_min_frame_coverage(get_granules_mock, get_acquisitions
 
     get_acquisitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.9, date=1) for _ in range(10)]
     aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
-    assert len(aqs) == 0
+    assert len(aqs) == 10
 
     get_acquisitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.91, date=1) for _ in range(10)]
     aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
