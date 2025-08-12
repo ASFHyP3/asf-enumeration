@@ -168,7 +168,7 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
 
     Args:
         frame: the ARIA frame ID or frame object to get the aquisitions from
-        min_frame_coverage: the amount the acqusition needs to overlap with the ARIA frame
+        min_frame_coverage: the amount the acquisition needs to overlap with the ARIA frame
 
     Returns:
         aquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
