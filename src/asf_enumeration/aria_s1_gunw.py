@@ -68,16 +68,26 @@ class Sentinel1Acquisition:
 
     @property
     def frame_coverage(self) -> float:
-        """Get the ratio of coverage of the acquistion with the ARIA frame.
+        """Get the ratio of coverage of the acquisition with the ARIA frame.
 
         Returns:
             frame_coverage: coverage ratio with ARIA frame
         """
-        slc_shapes = [shapely.geometry.shape(slc.geojson()['geometry']) for slc in self.products]
-        acquisition_footprint = ops.unary_union(slc_shapes)
-        frame_coverage = self.frame.polygon.intersection(acquisition_footprint).area / self.frame.polygon.area
+        frame_coverage = self.frame.polygon.intersection(self.footprint).area / self.frame.polygon.area
 
         return frame_coverage
+
+    @property
+    def footprint(self) -> float:
+        """Get the footprint of all products in the acquisition.
+
+        Returns:
+            acquisition_footprint: total footprint of all products in  acquisition
+        """
+        slc_shapes = [shapely.geometry.shape(slc.geojson()['geometry']) for slc in self.products]
+        acquisition_footprint = ops.unary_union(slc_shapes)
+
+        return acquisition_footprint
 
 
 class AriaEnumerationError(Exception):

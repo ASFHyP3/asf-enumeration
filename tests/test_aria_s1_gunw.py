@@ -207,7 +207,7 @@ def test_acquisition_frame_coverage(acquisition_geojson):
     aq = aria_s1_gunw.Sentinel1Acquisition(
         frame=frame, date=date(year=2022, month=2, day=12), products=asf.ASFSearchResults(results)
     )
-    assert aq.frame_coverage >= 1.0000000000000007
+    assert aq.frame_coverage == 1.0000000000000007
 
 
 @unittest.mock.patch.object(aria_s1_gunw, '_get_acquisitions_from')
