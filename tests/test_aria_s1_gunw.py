@@ -199,9 +199,9 @@ def test_gunw_dates_match():
 
 
 @unittest.mock.patch('asf_search.search')
-def test_acquisition_frame_coverage(search_mock, acqusition_geojson):
+def test_acquisition_frame_coverage(search_mock, acquisition_geojson):
     results = []
-    for geojson in acqusition_geojson:
+    for geojson in acquisition_geojson:
         product = unittest.mock.MagicMock()
         product.geojson.return_value = geojson
         results.append(product)
