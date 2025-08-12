@@ -72,7 +72,7 @@ def test_get_acquisitions():
     acquisitions_from_frame_id = aria_s1_gunw.get_acquisitions(200, min_frame_coverage=None)
 
     assert all(
-        [frame_version.date == id_version.date for (frame_version, id_version) in zip(acquisitions, with_frame_id)]
+        [acquisition.date == acquisition_from_frame_id.date for (acquisition, acquisition_from_frame_id) in zip(acquisitions, acquisitions_from_frame_id)]
     )
     assert all(acquisition.frame.id == 200 for acquisition in acquisitions)
     assert all(len(acquisition.products) <= 3 for acquisition in acquisitions)
