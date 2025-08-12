@@ -1,6 +1,8 @@
+import json
 import re
 import unittest.mock
 from datetime import date
+from pathlib import Path
 
 import asf_search as asf
 import pytest
@@ -66,12 +68,13 @@ def test_aria_s1_gunw_frame():
 def test_get_acquisitions():
     frame = aria_s1_gunw.get_frame(200)
 
-    acquisitions = aria_s1_gunw.get_acquisitions(frame)
+    acquisitions = aria_s1_gunw.get_acquisitions(frame, min_frame_coverage=None)
+    acquisitions_from_frame_id = aria_s1_gunw.get_acquisitions(200, min_frame_coverage=None)
 
     assert all(
         [
-            frame_version.date == id_version.date
-            for (frame_version, id_version) in zip(acquisitions, aria_s1_gunw.get_acquisitions(200))
+            acquisition.date == acquisition_from_frame_id.date
+            for (acquisition, acquisition_from_frame_id) in zip(acquisitions, acquisitions_from_frame_id)
         ]
     )
     assert all(acquisition.frame.id == 200 for acquisition in acquisitions)
@@ -194,3 +197,52 @@ def test_gunw_dates_match():
         date(2024, 5, 27),
         date(2024, 5, 3),
     )
+
+
+def test_acquisition_frame_coverage(acquisition_geojson):
+    results = []
+    for geojson in acquisition_geojson:
+        product = unittest.mock.MagicMock()
+        product.geojson.return_value = geojson
+        results.append(product)
+
+    frame = aria_s1_gunw.get_frame(25502)
+    aq = aria_s1_gunw.Sentinel1Acquisition(
+        frame=frame, date=date(year=2022, month=2, day=12), products=asf.ASFSearchResults(results)
+    )
+    assert aq.frame_coverage == 1.0000000000000007
+
+
+@unittest.mock.patch.object(aria_s1_gunw, '_get_acquisitions_from')
+@unittest.mock.patch.object(aria_s1_gunw, '_get_granules_for')
+def test_get_acquisitions_min_frame_coverage(get_granules_mock, get_acquisitions_from_mock):
+    get_acquisitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.91, date=1) for _ in range(10)]
+    aqs = aria_s1_gunw.get_acquisitions(25502)
+    assert len(aqs) == 10
+
+    get_acquisitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.89, date=1) for _ in range(10)]
+    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
+    assert len(aqs) == 0
+
+    get_acquisitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.9, date=1) for _ in range(10)]
+    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
+    assert len(aqs) == 10
+
+    get_acquisitions_from_mock.return_value = [unittest.mock.MagicMock(frame_coverage=0.91, date=1) for _ in range(10)]
+    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=0.9)
+    assert len(aqs) == 10
+
+    get_acquisitions_from_mock.return_value = [
+        unittest.mock.MagicMock(frame_coverage=0.0, date=1),
+        unittest.mock.MagicMock(frame_coverage=1.0, date=1),
+        unittest.mock.MagicMock(frame_coverage=2.0, date=1),
+        unittest.mock.MagicMock(frame_coverage=3.0, date=1),
+    ]
+    aqs = aria_s1_gunw.get_acquisitions(25502, min_frame_coverage=1.9)
+    assert len(aqs) == 2
+
+
+@pytest.fixture
+def acquisition_geojson():
+    with (Path(__file__).parent / 'data' / 'acquisition_geojson.json').open() as f:
+        return json.load(f)
