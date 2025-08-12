@@ -72,10 +72,7 @@ def test_get_acquisitions():
     with_frame_id = aria_s1_gunw.get_acquisitions(200, min_frame_coverage=None)
 
     assert all(
-        [
-            frame_version.date == id_version.date
-            for (frame_version, id_version) in zip(acquisitions, with_frame_id)
-        ]
+        [frame_version.date == id_version.date for (frame_version, id_version) in zip(acquisitions, with_frame_id)]
     )
     assert all(acquisition.frame.id == 200 for acquisition in acquisitions)
     assert all(len(acquisition.products) <= 3 for acquisition in acquisitions)
@@ -199,16 +196,17 @@ def test_gunw_dates_match():
     )
 
 
-@unittest.mock.patch('asf_search.search')
-def test_acquisition_frame_coverage(search_mock, acquisition_geojson):
+def test_acquisition_frame_coverage(acquisition_geojson):
     results = []
     for geojson in acquisition_geojson:
         product = unittest.mock.MagicMock()
         product.geojson.return_value = geojson
         results.append(product)
 
-    search_mock.return_value = asf.ASFSearchResults(results)
-    aq = aria_s1_gunw.get_acquisition(25502, date=date(year=2022, month=2, day=12))
+    frame = aria_s1_gunw.get_frame(25502)
+    aq = aria_s1_gunw.Sentinel1Acquisition(
+        frame=frame, date=date(year=2022, month=2, day=12), products=asf.ASFSearchResults(results)
+    )
     assert aq.frame_coverage >= 1.0000000000000007
 
 
