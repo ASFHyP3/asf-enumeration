@@ -73,14 +73,11 @@ class Sentinel1Acquisition:
         Returns:
             frame_coverage: coverage ratio with ARIA frame
         """
-        footprint_intersection = self.frame.polygon.intersection(self._get_footprint())
-        return footprint_intersection.area / self.frame.polygon.area
-
-    def _get_footprint(self) -> shapely.geometry.base.BaseGeometry:
         slc_shapes = [shapely.geometry.shape(slc.geojson()['geometry']) for slc in self.products]
         acquisition_footprint = ops.unary_union(slc_shapes)
+        footprint_intersection = self.frame.polygon.intersection(acquisition_footprint)
 
-        return acquisition_footprint
+        return footprint_intersection.area / self.frame.polygon.area
 
 
 class AriaEnumerationError(Exception):
