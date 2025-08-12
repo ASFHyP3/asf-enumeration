@@ -73,9 +73,8 @@ class Sentinel1Acquisition:
         Returns:
             frame_coverage: coverage ratio with ARIA frame
         """
-        frame_coverage = self.frame.polygon.intersection(self.footprint).area / self.frame.polygon.area
-
-        return frame_coverage
+        footprint_intersection = self.frame.polygon.intersection(self.footprint)
+        return footprint_intersection.area / self.frame.polygon.area
 
     @property
     def footprint(self) -> float:
