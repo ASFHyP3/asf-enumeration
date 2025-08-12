@@ -164,7 +164,9 @@ def get_frame(frame_id: int) -> AriaFrame:
     return FRAMES_BY_ID[frame_id]
 
 
-def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = None) -> list[Sentinel1Acquisition]:
+# Keep min_frame_coverage up to date with the hyp3 job spec
+# https://github.com/ASFHyP3/hyp3/blob/1c033fb0d3a20b99082a5ca631531f2b68aa727f/job_spec/ARIA_S1_GUNW.yml#L49-L50
+def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 0.9) -> list[Sentinel1Acquisition]:
     """Get all the possible Sentinel-1 acquisitions over a given ARIA frame ID.
 
     Args:

@@ -68,12 +68,13 @@ def test_aria_s1_gunw_frame():
 def test_get_acquisitions():
     frame = aria_s1_gunw.get_frame(200)
 
-    acquisitions = aria_s1_gunw.get_acquisitions(frame)
+    acquisitions = aria_s1_gunw.get_acquisitions(frame, min_frame_coverage=None)
+    with_frame_id = aria_s1_gunw.get_acquisitions(200, min_frame_coverage=None)
 
     assert all(
         [
             frame_version.date == id_version.date
-            for (frame_version, id_version) in zip(acquisitions, aria_s1_gunw.get_acquisitions(200))
+            for (frame_version, id_version) in zip(acquisitions, with_frame_id)
         ]
     )
     assert all(acquisition.frame.id == 200 for acquisition in acquisitions)
