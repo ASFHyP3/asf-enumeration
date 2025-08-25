@@ -14,6 +14,8 @@ from shapely import ops
 
 FlightDirections = typing.Literal['ASCENDING', 'DESCENDING']
 
+CMR_HOST = 'cmr.earthdata.nasa.gov'
+
 
 @dataclass(frozen=True)
 class AriaFrame:
@@ -166,12 +168,15 @@ def get_frame(frame_id: int) -> AriaFrame:
 
 # Keep min_frame_coverage up to date with the hyp3 job spec
 # https://github.com/ASFHyP3/hyp3/blob/1c033fb0d3a20b99082a5ca631531f2b68aa727f/job_spec/ARIA_S1_GUNW.yml#L49-L50
-def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 0.9) -> list[Sentinel1Acquisition]:
+def get_acquisitions(
+    frame: int | AriaFrame, min_frame_coverage: float | None = 0.9, cmr_host: str = CMR_HOST
+) -> list[Sentinel1Acquisition]:
     """Get all the possible Sentinel-1 acquisitions over a given ARIA frame ID.
 
     Args:
         frame: the ARIA frame ID or frame object to get the acquisitions from
         min_frame_coverage: the amount the acquisition needs to overlap with the ARIA frame
+        cmr_host: CMR host
 
     Returns:
         acquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
@@ -179,7 +184,7 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
     if isinstance(frame, int):
         frame = get_frame(frame)
 
-    granules = _get_granules_for(frame)
+    granules = _get_granules_for(frame, cmr_host=cmr_host)
     acquisitions = _get_acquisitions_from(granules, frame)
 
     if min_frame_coverage is not None:
@@ -189,7 +194,9 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
     return acquisitions
 
 
-def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> asf.ASFSearchResults:
+def _get_granules_for(
+    frame: AriaFrame, date: datetime.date | None = None, cmr_host: str = CMR_HOST
+) -> asf.ASFSearchResults:
     search_params = {
         'dataset': asf.constants.DATASET.SENTINEL1,
         'platform': ['SA', 'SB'],
@@ -206,7 +213,7 @@ def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> as
         search_params['start'] = date_as_datetime - datetime.timedelta(minutes=5)
         search_params['end'] = date_as_datetime + datetime.timedelta(days=1, minutes=5)
 
-    results = asf.search(**search_params)
+    results = asf.search(**search_params, opts=asf.ASFSearchOptions(host=cmr_host))
 
     return results
 
@@ -229,12 +236,13 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults, frame: AriaFrame) -> 
     return s1_acquisitions
 
 
-def get_acquisition(frame: int | AriaFrame, date: datetime.date) -> Sentinel1Acquisition:
+def get_acquisition(frame: int | AriaFrame, date: datetime.date, cmr_host: str = CMR_HOST) -> Sentinel1Acquisition:
     """Get a Sentinel-1 acquisition for a given frame and date.
 
     Args:
         frame: ARIA frame ID or frame object
         date: date of the acquisition
+        cmr_host: CMR host
 
     Returns:
         acquisition: Sentiel 1 acquisition
@@ -243,29 +251,35 @@ def get_acquisition(frame: int | AriaFrame, date: datetime.date) -> Sentinel1Acq
     if isinstance(frame, int):
         frame = get_frame(frame)
 
-    products = _get_granules_for(frame, date)
+    products = _get_granules_for(frame, date, cmr_host=cmr_host)
     acquisition = Sentinel1Acquisition(date=date, frame=frame, products=products)
 
     return acquisition
 
 
-def product_exists(reference_date: datetime.date | str, secondary_date: datetime.date | str, frame_id: int) -> bool:
+def product_exists(
+    reference_date: datetime.date | str, secondary_date: datetime.date | str, frame_id: int, cmr_host: str = CMR_HOST
+) -> bool:
     """Check if ARIA product already exists.
 
     Args:
         reference_date: Reference date of the product as a `datetime.date` object or a date string in ISO format
         secondary_date: Secondary date of the product as a `datetime.date` object or a date string in ISO format
         frame_id: ARIA frame ID
+        cmr_host: CMR host
 
     Returns:
         Whether the product already exists in ASF's archive
 
     """
-    return get_product(reference_date, secondary_date, frame_id) is not None
+    return get_product(reference_date, secondary_date, frame_id, cmr_host=cmr_host) is not None
 
 
 def get_product(
-    reference_date: datetime.date | str, secondary_date: datetime.date | str, frame_id: int
+    reference_date: datetime.date | str,
+    secondary_date: datetime.date | str,
+    frame_id: int,
+    cmr_host: str = CMR_HOST,
 ) -> asf.ASFProduct | None:
     """Get the ARIA product for the given parameters, if it exists.
 
@@ -273,6 +287,7 @@ def get_product(
         reference_date: Reference date of the product as a `datetime.date` object or a date string in ISO format
         secondary_date: Secondary date of the product as a `datetime.date` object or a date string in ISO format
         frame_id: ARIA frame ID
+        cmr_host: CMR host
 
     Returns:
         The product if it exists, otherwise None.
@@ -292,6 +307,7 @@ def get_product(
         frame=frame_id,
         start=reference_date - date_buffer,
         end=reference_date + date_buffer,
+        opts=asf.ASFSearchOptions(host=cmr_host),
     )
     results = [
         result
