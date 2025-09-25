@@ -192,7 +192,7 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
 def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> asf.ASFSearchResults:
     search_params = {
         'dataset': asf.constants.DATASET.SENTINEL1,
-        'platform': ['SA', 'SB'],
+        'platform': ['SA', 'SB', 'SC'],
         'processingLevel': asf.constants.PRODUCT_TYPE.SLC,
         'beamMode': asf.constants.BEAMMODE.IW,
         'polarization': [asf.constants.POLARIZATION.VV, asf.constants.POLARIZATION.VV_VH],
