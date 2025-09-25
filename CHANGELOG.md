@@ -9,6 +9,12 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.3.0]
 
 ### Added
+
+- Add support for `Sentinel-1C`.
+
+## [0.3.0]
+
+### Added
 - Add property `Sentinel1Acquisition.frame_coverage`
 - Add `min_frame_coverage` parameter to `aria_s1_gunw.get_acquisitions` to filter by frame overlap
 
