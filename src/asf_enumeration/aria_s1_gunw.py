@@ -18,7 +18,6 @@ S1C_CALIBRATION_DATE = datetime.datetime(
 ).date()  # https://sentinels.copernicus.eu/-/sentinel-1c-products-are-now-calibrated
 
 
-
 @dataclass(frozen=True)
 class AriaFrame:
     """Class for representing an ARIA frame.
