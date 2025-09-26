@@ -242,6 +242,13 @@ def test_get_acquisitions_min_frame_coverage(get_granules_mock, get_acquisitions
     assert len(aqs) == 2
 
 
+@pytest.mark.network
+def test_s1c_date_filter():
+    acq = aria_s1_gunw.get_acquisition(26847, date(2025, 6, 15))
+
+    assert len(acq.products) == 0
+
+
 @pytest.fixture
 def acquisition_geojson():
     with (Path(__file__).parent / 'data' / 'acquisition_geojson.json').open() as f:
