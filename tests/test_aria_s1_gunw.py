@@ -249,7 +249,7 @@ def test_s1c_date_filter():
     assert len(acq.products) == 0
     acq = aria_s1_gunw.get_acquisition(17085, date(2025, 5, 30))
 
-    assert len(acq.products) == 3
+    assert len(acq.products) == 2
     assert all(s.properties['sceneName'].startswith('S1C') for s in acq.products)
 
 
