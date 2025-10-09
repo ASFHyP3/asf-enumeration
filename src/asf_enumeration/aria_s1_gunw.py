@@ -177,7 +177,7 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
         min_frame_coverage: the amount the acquisition needs to overlap with the ARIA frame
 
     Returns:
-        acquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
+        acquisitions: All the Sentinel-1 acquisitions for a given ARIA frame sorted by date
     """
     if isinstance(frame, int):
         frame = get_frame(frame)
@@ -188,7 +188,7 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
     if min_frame_coverage is not None:
         acquisitions = [acquisition for acquisition in acquisitions if acquisition.frame_coverage >= min_frame_coverage]
 
-    acquisitions.sort(key=lambda group: group.date)
+    acquisitions.sort(key=lambda acq: acq.date)
     return acquisitions
 
 

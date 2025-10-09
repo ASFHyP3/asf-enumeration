@@ -41,7 +41,7 @@ These are the main data classes used by the `asf_enumeration.aria_s1_gunw` modul
 The `asf_enumeration.aria_s1_gunw` module exposes these functions
    - `get_frames` get all ARIA frames based on filter critiria (geometry, flight direction, path)
    - `get_frame` get a single ARIA frame based on it's ID
-   - `get_acquisitions` get all Sentinel-1 acquisitions for a given ARIA frame
+   - `get_acquisitions` get all Sentinel-1 acquisitions for a given ARIA frame sorted by date
    - `get_acquisition` get a Sentinel-1 acquisition for a given ARIA frame and date
    - `get_product` get an ARIA product for a given reference date, secondary date, and ARIA frame, if the product exists
    - `product_exists` check if an ARIA product exists in the ASF archive given reference date, secondary date, and ARIA frame
