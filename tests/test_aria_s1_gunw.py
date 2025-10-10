@@ -246,10 +246,9 @@ def test_get_acquisitions_min_frame_coverage(get_granules_mock, get_acquisitions
 @pytest.mark.network
 def test_s1c_date_filter():
     acq = aria_s1_gunw.get_acquisition(26847, date(2025, 6, 15))
-
     assert len(acq.products) == 0
+    
     acq = aria_s1_gunw.get_acquisition(17085, date(2025, 5, 30))
-
     assert len(acq.products) == 2
     assert all(s.properties['sceneName'].startswith('S1C') for s in acq.products)
 
