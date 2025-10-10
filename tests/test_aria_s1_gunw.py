@@ -262,7 +262,6 @@ def test_is_calibrated_sentinel_granule(dummy_granule):
     assert aria_s1_gunw._is_calibrated_sentinel_granule(dummy_granule)
 
     dummy_granule.properties['platform'] = 'Sentinel-1C'
-
     before_date = aria_s1_gunw.S1C_CALIBRATION_DATE - timedelta(days=1)
     dummy_granule.properties['startTime'] = before_date.strftime('%Y-%m-%dT00:00:00+0000')
     assert not aria_s1_gunw._is_calibrated_sentinel_granule(dummy_granule)
