@@ -13,6 +13,9 @@ from shapely import ops
 
 
 FlightDirections = typing.Literal['ASCENDING', 'DESCENDING']
+S1C_CALIBRATION_DATE = datetime.datetime(
+    2025, 5, 19, tzinfo=datetime.timezone.utc
+).date()  # https://sentinels.copernicus.eu/-/sentinel-1c-products-are-now-calibrated
 
 
 @dataclass(frozen=True)
@@ -174,7 +177,7 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
         min_frame_coverage: the amount the acquisition needs to overlap with the ARIA frame
 
     Returns:
-        acquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
+        acquisitions: All the Sentinel-1 acquisitions for a given ARIA frame sorted by date
     """
     if isinstance(frame, int):
         frame = get_frame(frame)
@@ -185,14 +188,13 @@ def get_acquisitions(frame: int | AriaFrame, min_frame_coverage: float | None = 
     if min_frame_coverage is not None:
         acquisitions = [acquisition for acquisition in acquisitions if acquisition.frame_coverage >= min_frame_coverage]
 
-    acquisitions.sort(key=lambda group: group.date)
+    acquisitions.sort(key=lambda acq: acq.date)
     return acquisitions
 
 
 def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> asf.ASFSearchResults:
     search_params = {
         'dataset': asf.constants.DATASET.SENTINEL1,
-        'platform': ['SA', 'SB'],
         'processingLevel': asf.constants.PRODUCT_TYPE.SLC,
         'beamMode': asf.constants.BEAMMODE.IW,
         'polarization': [asf.constants.POLARIZATION.VV, asf.constants.POLARIZATION.VV_VH],
@@ -208,7 +210,14 @@ def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> as
 
     results = asf.search(**search_params)
 
-    return results
+    return [granule for granule in results if _is_calibrated_sentinel_granule(granule)]
+
+
+def _is_calibrated_sentinel_granule(granule: asf.ASFProduct) -> bool:
+    if granule.properties['platform'] != asf.PLATFORM.SENTINEL1C:
+        return True
+
+    return _date_from_granule(granule) >= S1C_CALIBRATION_DATE
 
 
 def _get_acquisitions_from(granules: asf.ASFSearchResults, frame: AriaFrame) -> list[Sentinel1Acquisition]:
