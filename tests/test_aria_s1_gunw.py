@@ -1,8 +1,9 @@
 import json
 import re
 import unittest.mock
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import asf_search as asf
 import pytest
@@ -242,7 +243,44 @@ def test_get_acquisitions_min_frame_coverage(get_granules_mock, get_acquisitions
     assert len(aqs) == 2
 
 
+@pytest.mark.network
+def test_s1c_date_filter():
+    acq = aria_s1_gunw.get_acquisition(26847, date(2025, 6, 15))
+    assert len(acq.products) == 0
+
+    acq = aria_s1_gunw.get_acquisition(17085, date(2025, 5, 30))
+    assert len(acq.products) == 2
+    assert all(s.properties['sceneName'].startswith('S1C') for s in acq.products)
+
+
+def test_is_calibrated_sentinel_granule(dummy_granule):
+    dummy_granule.properties['platform'] = 'SENTINEL-1B'
+    assert aria_s1_gunw._is_calibrated_sentinel_granule(dummy_granule)
+
+    dummy_granule.properties['platform'] = 'SENTINEL-1A'
+    assert aria_s1_gunw._is_calibrated_sentinel_granule(dummy_granule)
+
+    dummy_granule.properties['platform'] = 'Sentinel-1C'
+    before_date = aria_s1_gunw.S1C_CALIBRATION_DATE - timedelta(days=1)
+    dummy_granule.properties['startTime'] = before_date.strftime('%Y-%m-%dT00:00:00+0000')
+    assert not aria_s1_gunw._is_calibrated_sentinel_granule(dummy_granule)
+
+    after_date = aria_s1_gunw.S1C_CALIBRATION_DATE + timedelta(days=1)
+    dummy_granule.properties['startTime'] = after_date.strftime('%Y-%m-%dT00:00:00+0000')
+    assert aria_s1_gunw._is_calibrated_sentinel_granule(dummy_granule)
+
+
 @pytest.fixture
 def acquisition_geojson():
     with (Path(__file__).parent / 'data' / 'acquisition_geojson.json').open() as f:
         return json.load(f)
+
+
+@pytest.fixture
+def dummy_granule():
+    g = MagicMock()
+    g.properties = {
+        'platform': 'SENTINEL-1A',
+        'startTime': '2023-05-01T12:00:00+0000',
+    }
+    return g
