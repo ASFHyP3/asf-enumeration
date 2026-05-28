@@ -17,6 +17,9 @@ S1C_CALIBRATION_DATE = datetime.datetime(
     2025, 5, 19, tzinfo=datetime.timezone.utc
 ).date()  # https://sentinels.copernicus.eu/-/sentinel-1c-products-are-now-calibrated
 
+# https://sentinels.copernicus.eu/web/sentinel/-/sentinel-1d-user-data-opening-from-17-april-2026
+S1D_CALIBRATION_DATE = datetime.datetime(2026, 4, 17, tzinfo=datetime.timezone.utc).date()
+
 
 @dataclass(frozen=True)
 class AriaFrame:
@@ -214,10 +217,14 @@ def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> as
 
 
 def _is_calibrated_sentinel_granule(granule: asf.ASFProduct) -> bool:
-    if granule.properties['platform'] != asf.PLATFORM.SENTINEL1C:
-        return True
+    if granule.properties['platform'] == asf.PLATFORM.SENTINEL1C:
+        return _date_from_granule(granule) >= S1C_CALIBRATION_DATE
 
-    return _date_from_granule(granule) >= S1C_CALIBRATION_DATE
+    elif granule.properties['platform'] == asf.PLATFORM.SENTINEL1D:
+        return _date_from_granule(granule) >= S1D_CALIBRATION_DATE
+
+    else:
+        return True
 
 
 def _get_acquisitions_from(granules: asf.ASFSearchResults, frame: AriaFrame) -> list[Sentinel1Acquisition]:
