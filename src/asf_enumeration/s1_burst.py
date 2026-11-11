@@ -1,3 +1,5 @@
+"""For Sentinel-1 SLC Burst frame id querying."""
+
 import asf_search as asf
 import shapely
 
