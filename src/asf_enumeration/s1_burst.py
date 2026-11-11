@@ -11,6 +11,7 @@ def get_slc_burst_ids(
     subswath: int | None = None,
     maxResults: int = 250,
 ) -> list[Frame]:
+    """Gets SLC Bursts frames over a given AOI from CMR."""
     kwargs = locals()
     burstmap = 'Sentinel-1_Burst_Map'
     opts = asf.ASFSearchOptions(

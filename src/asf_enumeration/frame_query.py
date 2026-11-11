@@ -1,3 +1,5 @@
+"""Generic get_frames method for spatial frame querying."""
+
 import shapely
 from asf_search import validate_wkt
 
@@ -13,16 +15,23 @@ def get_frames(
     maxResults: int = 250,
     options: Options | None = None,
 ) -> list[Frame] | None:
+    """Get frames for a given dataset over a given aoi.
+
+    Args:
+        type: Type of frames to query. Either 'BURST', 'ARIA', or 'NISAR'
+        intersectsWith: the AOI to query with
+        maxResults: How many frames to limit results to
+        options: Relevant options for different frame types
+    """
     if type == 'BURST':
         return get_slc_burst_ids(intersectsWith=intersectsWith, maxResults=maxResults, *options)
     elif type == 'ARIA':
-        return get_aria_frame_ids(intersectsWith, options)
+        return _get_aria_frame_ids(intersectsWith, options)
     elif type == 'NISAR':
-        return
-    pass
+        return []
 
 
-def get_aria_frame_ids(
+def _get_aria_frame_ids(
     intersectsWith: shapely.geometry.base.BaseGeometry | str, options: Options
 ) -> list[Frame]:
     if isinstance(intersectsWith, str):

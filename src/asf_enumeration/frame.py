@@ -1,3 +1,5 @@
+"""Class definitions for generic spatial frame querying."""
+
 from dataclasses import dataclass
 from typing import TypedDict
 
