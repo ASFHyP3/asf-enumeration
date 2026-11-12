@@ -38,14 +38,10 @@ def get_frame_ids(
     elif type == 'ARIA':
         return _get_aria_frame_ids(intersectsWith, options)
 
-    raise FrameQueryError(
-        f'Unsupported argument passed to `type`. Expected `BURST` or `ARIA`. Got `{type}`'
-    )
+    raise FrameQueryError(f'Unsupported argument passed to `type`. Expected `BURST` or `ARIA`. Got `{type}`')
 
 
-def _get_aria_frame_ids(
-    intersectsWith: shapely.geometry.base.BaseGeometry | str, options: Options
-) -> list[Frame]:
+def _get_aria_frame_ids(intersectsWith: shapely.geometry.base.BaseGeometry | str, options: Options) -> list[Frame]:
     if isinstance(intersectsWith, str):
         intersectsWith, _, __ = validate_wkt(intersectsWith)
     return [
