@@ -8,14 +8,17 @@ import shapely
 from asf_enumeration.aria_s1_gunw import FlightDirections
 
 
+@dataclass
 class AriaMetadata:
     """ARIA specific frame metadata."""
 
 
+@dataclass
 class BurstMetadata:
     """SLC Burst specific frame metadata."""
 
 
+@dataclass
 class NisarMetadata:
     """NISAR specific frame metadata."""
 
@@ -23,15 +26,16 @@ class NisarMetadata:
 class AriaOptions(TypedDict):
     """ARIA specific options for querying frames."""
 
-    flightDirection: FlightDirections
-    path: int
+    flight_direction: FlightDirections | None
+    path: int | None
 
 
 class BurstOptions(TypedDict):
     """SLC Burst specific options for querying frames."""
 
-    flightDirection: FlightDirections
-    subswath: str
+    path: int | None
+    flight_direction: FlightDirections | None
+    subswath: str | None
 
 
 class NisarOptions(TypedDict):
@@ -48,6 +52,6 @@ class Frame:
 
     id: str
     polygon: shapely.Polygon
-    flightDirection: FlightDirections
+    flight_direction: FlightDirections
     type: str
     metadata: Metadata

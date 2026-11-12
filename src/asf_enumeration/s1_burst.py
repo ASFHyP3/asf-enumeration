@@ -3,14 +3,14 @@
 import asf_search as asf
 import shapely
 
-from asf_enumeration.Frame import BurstMetadata, Frame
+from .frame import BurstMetadata, Frame
 
 
 def get_slc_burst_ids(
     intersectsWith: str | shapely.geometry.base.BaseGeometry,
-    flightDirection: str | None = None,
+    flight_direction: str | None = None,
     path: int | None = None,
-    subswath: int | None = None,
+    subswath: str | None = None,
     maxResults: int = 250,
 ) -> list[Frame]:
     """Gets SLC Bursts frames over a given AOI from CMR."""
@@ -18,8 +18,8 @@ def get_slc_burst_ids(
     burstmap = 'Sentinel-1_Burst_Map'
     opts = asf.ASFSearchOptions(
         intersectsWith=intersectsWith,
-        flightDirection=flightDirection,
-        pathNumber=path,
+        flightDirection=flight_direction,
+        relativeOrbit=path,
         maxResults=maxResults,
     )
     if subswath is not None:
@@ -29,7 +29,7 @@ def get_slc_burst_ids(
         Frame(
             id=product.properties['fileID'],
             polygon=product.geometry,
-            flightDirection=product.properties['flightDirection'],
+            flight_direction=product.properties['flightDirection'],
             type='BURST',
             metadata=BurstMetadata(),
         )

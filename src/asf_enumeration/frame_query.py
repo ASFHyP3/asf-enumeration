@@ -5,16 +5,16 @@ from asf_search import validate_wkt
 
 from asf_enumeration.s1_burst import get_slc_burst_ids
 
-from .Frame import AriaMetadata, Frame, Options
-from .aria_s1_gunw import get_frames as get_aria_frames
+from .aria_s1_gunw import get_frames
+from .frame import AriaMetadata, Frame, Options
 
 
-def get_frames(
+def get_frame_ids(
     type: str,
     intersectsWith: str | shapely.geometry.base.BaseGeometry,
     maxResults: int = 250,
     options: Options | None = None,
-) -> list[Frame] | None:
+) -> list[Frame]:
     """Get frames for a given dataset over a given aoi.
 
     Args:
@@ -23,12 +23,24 @@ def get_frames(
         maxResults: How many frames to limit results to
         options: Relevant options for different frame types
     """
+    if options is None:
+        options = {}
+
+    if intersectsWith and not isinstance(intersectsWith, str):
+        intersectsWith = intersectsWith.wkt
+
     if type == 'BURST':
-        return get_slc_burst_ids(intersectsWith=intersectsWith, maxResults=maxResults, *options)
+        return get_slc_burst_ids(
+            intersectsWith,
+            **options,  # type: ignore (linter hates spreading TypedDicts that are part of union types)
+            maxResults=maxResults,
+        )
     elif type == 'ARIA':
         return _get_aria_frame_ids(intersectsWith, options)
-    elif type == 'NISAR':
-        return []
+
+    raise FrameQueryError(
+        f'Unsupported argument passed to `type`. Expected `BURST` or `ARIA`. Got `{type}`'
+    )
 
 
 def _get_aria_frame_ids(
@@ -37,6 +49,19 @@ def _get_aria_frame_ids(
     if isinstance(intersectsWith, str):
         intersectsWith, _, __ = validate_wkt(intersectsWith)
     return [
-        Frame(str(frame.id), frame.polygon, frame.flight_direction, 'ARIA', AriaMetadata())
-        for frame in get_aria_frames(intersectsWith, *options)
+        Frame(
+            id=str(frame.id),
+            polygon=frame.polygon,
+            flight_direction=frame.flight_direction,
+            type='ARIA',
+            metadata=AriaMetadata(),
+        )
+        for frame in get_frames(
+            intersectsWith,
+            **options,  # type: ignore (linter hates spreading TypedDicts that are part of union types)
+        )
     ]
+
+
+class FrameQueryError(Exception):
+    """Exception for errors with Frame Queries."""
