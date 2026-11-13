@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "asf_enumeration"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [
     {name="ASF APD/Tools Team", email="uaf-asf-apd@alaska.edu"},
 ]
@@ -16,10 +16,10 @@ classifiers=[
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "asf_search",
@@ -85,7 +85,7 @@ suppress-dummy-args = true
 "tests/*" = ["D1", "ANN"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_unreachable = true
