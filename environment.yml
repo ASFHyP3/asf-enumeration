@@ -6,7 +6,6 @@ dependencies:
   - python>=3.11
   - pip
   - requests
-  - numpy>=2.4
   - shapely
   - asf_search
   # For packaging, and testing
