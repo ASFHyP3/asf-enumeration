@@ -7,7 +7,7 @@ from .frame import BurstMetadata, Frame
 
 
 def get_slc_burst_ids(
-    intersectsWith: str | shapely.geometry.base.BaseGeometry,
+    intersectsWith: str | shapely.Geometry | shapely.geometry.base.BaseGeometry,
     flight_direction: str | None = None,
     path: int | None = None,
     subswath: str | None = None,

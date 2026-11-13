@@ -37,7 +37,7 @@ class AriaFrame:
     flight_direction: FlightDirections
     polygon: shapely.Polygon
 
-    def does_intersect(self, geometry: shapely.Geometry) -> bool:
+    def does_intersect(self, geometry: shapely.geometry.base.BaseGeometry | shapely.Geometry) -> bool:
         """Check if geometry intersects ARIA frame.
 
         Args:
@@ -127,7 +127,9 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 
 
 def get_frames(
-    geometry: shapely.Geometry | None = None, flight_direction: FlightDirections | None = None, path: int | None = None
+    geometry: shapely.geometry.base.BaseGeometry | shapely.Geometry | None = None,
+    flight_direction: FlightDirections | None = None,
+    path: int | None = None,
 ) -> list[AriaFrame]:
     """Get all ARIA frames that match filter parameters.
 
