@@ -32,7 +32,7 @@ def get_frame_ids(
     if type == 'BURST':
         return get_slc_burst_ids(
             intersectsWith,
-            **options,  # type: ignore # (linter hates spreading TypedDicts that are part of union types)
+            **options,  # type: ignore[unused-ignore]
             maxResults=maxResults,
         )
     elif type == 'ARIA':
@@ -41,7 +41,7 @@ def get_frame_ids(
     raise FrameQueryError(f'Unsupported argument passed to `type`. Expected `BURST` or `ARIA`. Got `{type}`')
 
 
-def _get_aria_frame_ids(intersectsWith: shapely.geometry.base.BaseGeometry | str, options: Options) -> list[Frame]:
+def _get_aria_frame_ids(intersectsWith: shapely.Geometry | str, options: Options) -> list[Frame]:
     if isinstance(intersectsWith, str):
         intersectsWith, _, __ = validate_wkt(intersectsWith)
     return [
@@ -54,7 +54,7 @@ def _get_aria_frame_ids(intersectsWith: shapely.geometry.base.BaseGeometry | str
         )
         for frame in get_frames(
             intersectsWith,
-            **options,  # type: ignore # (linter hates spreading TypedDicts that are part of union types)
+            **options,  # type: ignore[unused-ignore]
         )
     ]
 
