@@ -26,9 +26,11 @@ def get_frame_ids(
     if options is None:
         options = {}
 
-    if intersectsWith and not isinstance(intersectsWith, str):
-        intersectsWith = intersectsWith.wkt
-
+    if intersectsWith:
+        if isinstance(intersectsWith, shapely.geometry.base.BaseGeometry):
+            intersectsWith = intersectsWith.wkt
+        elif isinstance(intersectsWith, shapely.Geometry):
+            intersectsWith = shapely.to_wkt(intersectsWith)
     if type == 'BURST':
         return get_slc_burst_ids(
             intersectsWith,
