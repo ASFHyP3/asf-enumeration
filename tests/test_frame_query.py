@@ -72,4 +72,7 @@ def test_get_frames():
         )
 
     with pytest.raises(asf_enumeration.frame_query.FrameQueryError):
-        asf_enumeration.frame_query.get_frame_ids(type='ARIA S1 GUNW', intersectsWith=None)
+        asf_enumeration.frame_query.get_frame_ids(
+            type='ARIA S1 GUNW',
+            intersectsWith=None,  # type: ignore[arg-type]
+        )
