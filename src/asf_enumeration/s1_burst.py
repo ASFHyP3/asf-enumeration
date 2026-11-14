@@ -13,7 +13,16 @@ def get_slc_burst_ids(
     subswath: str | None = None,
     maxResults: int = 250,
 ) -> list[Frame]:
-    """Gets SLC Bursts frames over a given AOI from CMR."""
+    """Gets SLC Bursts frames over a given AOI from CMR.
+
+    Args:
+        intersectsWith: the AOI to query with
+        flight_direction: the flight direction of the frame(s) (`ASCENDING` or `DESCENDING`)
+        path: the path (`relativeOrbit`) of the frame(s)
+        subswath: the subswath (ex: 'EW2')
+        maxResults: How many frames to limit results to
+
+    """
     kwargs = locals()
     burstmap = 'Sentinel-1_Burst_Map'
 

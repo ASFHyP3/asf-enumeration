@@ -12,6 +12,11 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add `frame_query.get_frame_ids()` method for querying `ARIA` and `BURST` frames with AOIs
 
+### Changed
+
+- Dropped python 3.10 (version has reached EOL)
+- bumped `mypy` version
+
 ## [0.5.0]
 
 ### Added
