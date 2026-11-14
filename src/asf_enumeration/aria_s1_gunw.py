@@ -14,11 +14,11 @@ from shapely import ops
 
 FlightDirections = typing.Literal['ASCENDING', 'DESCENDING']
 S1C_CALIBRATION_DATE = datetime.datetime(
-    2025, 5, 19, tzinfo=datetime.timezone.utc
+    2025, 5, 19, tzinfo=datetime.UTC
 ).date()  # https://sentinels.copernicus.eu/-/sentinel-1c-products-are-now-calibrated
 
 # https://sentinels.copernicus.eu/web/sentinel/-/sentinel-1d-user-data-opening-from-17-april-2026
-S1D_CALIBRATION_DATE = datetime.datetime(2026, 4, 17, tzinfo=datetime.timezone.utc).date()
+S1D_CALIBRATION_DATE = datetime.datetime(2026, 4, 17, tzinfo=datetime.UTC).date()
 
 
 @dataclass(frozen=True)
@@ -37,7 +37,7 @@ class AriaFrame:
     flight_direction: FlightDirections
     polygon: shapely.Polygon
 
-    def does_intersect(self, geometry: shapely.Geometry) -> bool:
+    def does_intersect(self, geometry: shapely.geometry.base.BaseGeometry | shapely.Geometry) -> bool:
         """Check if geometry intersects ARIA frame.
 
         Args:
@@ -127,7 +127,9 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 
 
 def get_frames(
-    geometry: shapely.Geometry | None = None, flight_direction: FlightDirections | None = None, path: int | None = None
+    geometry: shapely.geometry.base.BaseGeometry | shapely.Geometry | None = None,
+    flight_direction: FlightDirections | None = None,
+    path: int | None = None,
 ) -> list[AriaFrame]:
     """Get all ARIA frames that match filter parameters.
 
