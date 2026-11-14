@@ -23,6 +23,10 @@ def get_frame_ids(
         maxResults: How many frames to limit results to
         options: Relevant options for different frame types
     """
+
+    if intersectsWith is None:
+        raise FrameQueryError('expected AOI (`intersectsWith`) to query with')
+
     if options is None:
         options = {}
 
