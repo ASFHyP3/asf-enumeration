@@ -16,8 +16,11 @@ def get_slc_burst_ids(
     """Gets SLC Bursts frames over a given AOI from CMR."""
     kwargs = locals()
     burstmap = 'Sentinel-1_Burst_Map'
+
+    # TODO: remove this when asf-search actually supports taking BaseGeometry objects
     if intersectsWith and isinstance(intersectsWith, shapely.geometry.base.BaseGeometry):
         intersectsWith = intersectsWith.wkt
+
     opts = asf.ASFSearchOptions(
         intersectsWith=intersectsWith,
         flightDirection=flight_direction,

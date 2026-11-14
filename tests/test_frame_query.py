@@ -12,6 +12,11 @@ def test_get_frames():
     frames = asf_enumeration.frame_query.get_frame_ids(type='BURST', intersectsWith=wkt, maxResults=250, options=None)
     assert len(frames) == 27
 
+    frames_max_results = asf_enumeration.frame_query.get_frame_ids(
+        type='BURST', intersectsWith=wkt, maxResults=10, options=None
+    )
+    assert len(frames_max_results) == 10
+
     frames = asf_enumeration.frame_query.get_frame_ids(
         type='BURST',
         intersectsWith=search_polygon,
@@ -49,6 +54,14 @@ def test_get_frames():
         options=asf_enumeration.frame.AriaOptions(flight_direction='ASCENDING', path=35),
     )
     assert len(all_filters) == 2
+
+    all_filters_max_results = asf_enumeration.frame_query.get_frame_ids(
+        type='ARIA',
+        intersectsWith=search_polygon,
+        maxResults=1,
+        options=asf_enumeration.frame.AriaOptions(flight_direction='ASCENDING', path=35),
+    )
+    assert len(all_filters_max_results) == 1
 
     with pytest.raises(asf_enumeration.frame_query.FrameQueryError):
         asf_enumeration.frame_query.get_frame_ids(
