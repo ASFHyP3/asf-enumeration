@@ -11,7 +11,7 @@ from .frame import AriaMetadata, Frame, Options
 
 def get_frame_ids(
     type: str,
-    intersectsWith: str | shapely.geometry.base.BaseGeometry | shapely.Geometry,
+    intersectsWith: str | shapely.geometry.base.BaseGeometry,
     maxResults: int = 250,
     options: Options | None = None,
 ) -> list[Frame]:
@@ -26,11 +26,6 @@ def get_frame_ids(
     if options is None:
         options = {}
 
-    if intersectsWith:
-        if isinstance(intersectsWith, shapely.geometry.base.BaseGeometry):
-            intersectsWith = intersectsWith.wkt
-        elif isinstance(intersectsWith, shapely.Geometry):
-            intersectsWith = shapely.to_wkt(intersectsWith)
     if type == 'BURST':
         return get_slc_burst_ids(
             intersectsWith,
@@ -43,9 +38,7 @@ def get_frame_ids(
     raise FrameQueryError(f'Unsupported argument passed to `type`. Expected `BURST` or `ARIA`. Got `{type}`')
 
 
-def _get_aria_frame_ids(
-    intersectsWith: shapely.geometry.base.BaseGeometry | shapely.Geometry | str, options: Options
-) -> list[Frame]:
+def _get_aria_frame_ids(intersectsWith: shapely.geometry.base.BaseGeometry | str, options: Options) -> list[Frame]:
     if isinstance(intersectsWith, str):
         intersectsWith, _, __ = validate_wkt(intersectsWith)
     return [
@@ -57,7 +50,7 @@ def _get_aria_frame_ids(
             metadata=AriaMetadata(),
         )
         for frame in get_frames(
-            intersectsWith,
+            intersectsWith,  # type: ignore[arg-type] # mypy doesn't recognize this won't be a str
             **options,  # type: ignore[unused-ignore]
         )
     ]
