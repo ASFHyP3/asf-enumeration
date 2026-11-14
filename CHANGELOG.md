@@ -10,7 +10,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- Add `frame_query.get_frame_ids()` method for querying `ARIA` and `BURST` frames with AOIs
+- Add `frame_query.get_frame_ids()` method for querying `ARIA S1 GUNW` and `SLC-BURST` frames with AOIs
 
 ### Changed
 
