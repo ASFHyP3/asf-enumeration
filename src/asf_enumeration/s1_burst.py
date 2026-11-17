@@ -3,23 +3,19 @@
 import asf_search as asf
 import shapely
 
-from .frame import BurstMetadata, Frame
+from .frame import BurstMetadata, Frame, Options
 
 
-def get_slc_burst_ids(
+def get_slc_burst_frame_ids(
     intersectsWith: str | shapely.geometry.base.BaseGeometry,
-    flight_direction: str | None = None,
-    path: int | None = None,
-    subswath: str | None = None,
+    options: Options,
     maxResults: int = 250,
 ) -> list[Frame]:
     """Gets SLC Bursts frames over a given AOI from CMR.
 
     Args:
         intersectsWith: the AOI to query with
-        flight_direction: the flight direction of the frame(s) (`ASCENDING` or `DESCENDING`)
-        path: the path (`relativeOrbit`) of the frame(s)
-        subswath: the subswath (ex: 'EW2')
+        options: Various options relevant to query burst frames (see `BurstOptions`) for more
         maxResults: How many frames to limit results to
 
     """
@@ -31,11 +27,11 @@ def get_slc_burst_ids(
 
     opts = asf.ASFSearchOptions(
         intersectsWith=intersectsWith,
-        flightDirection=flight_direction,
-        relativeOrbit=path,
+        flightDirection=options.get('flight_direction'),
+        relativeOrbit=options.get('path'),
         maxResults=maxResults,
     )
-    if subswath is not None:
+    if (subswath := options.get('subswath')) is not None:
         opts.cmr_keywords = [('attribute[]', f'string,SUBSWATH_NAME,{subswath}')]
 
     return [

@@ -1,11 +1,10 @@
 """Class definitions for generic spatial frame querying."""
 
+import typing
 from dataclasses import dataclass
 from typing import TypedDict
 
 import shapely
-
-from asf_enumeration.aria_s1_gunw import FlightDirections
 
 
 @dataclass
@@ -26,7 +25,7 @@ class NisarMetadata:
 class AriaOptions(TypedDict):
     """ARIA specific options for querying frames."""
 
-    flight_direction: FlightDirections | None
+    flight_direction: typing.Literal['ASCENDING', 'DESCENDING'] | None
     path: int | None
 
 
@@ -34,8 +33,8 @@ class BurstOptions(TypedDict):
     """SLC Burst specific options for querying frames."""
 
     path: int | None
-    flight_direction: FlightDirections | None
-    subswath: str | None
+    flight_direction: typing.Literal['ASCENDING', 'DESCENDING'] | None
+    subswath: str | None  # (ex: 'EW2')
 
 
 class NisarOptions(TypedDict):
@@ -52,6 +51,6 @@ class Frame:
 
     id: str
     polygon: shapely.Polygon
-    flight_direction: FlightDirections
+    flight_direction: typing.Literal['ASCENDING', 'DESCENDING']
     type: str
     metadata: Metadata

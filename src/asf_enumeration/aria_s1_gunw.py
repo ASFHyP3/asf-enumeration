@@ -9,7 +9,10 @@ from dataclasses import dataclass
 
 import asf_search as asf
 import shapely
+from asf_search.WKT.validate_wkt import validate_wkt
 from shapely import ops
+
+from asf_enumeration.frame import AriaMetadata, Frame, Options
 
 
 FlightDirections = typing.Literal['ASCENDING', 'DESCENDING']
@@ -320,6 +323,36 @@ def get_product(
         return None
 
     return max(results, key=lambda product: product.meta['revision-date'])
+
+
+def get_aria_frame_ids(
+    intersectsWith: shapely.geometry.base.BaseGeometry | str, maxResults: int, options: Options
+) -> list[Frame]:
+    """Wrapper method for get_frames() for use with `frame_query()`, returns output as generic `Frame` class.
+
+    Args:
+        intersectsWith: desired WKT or shapely geometry AOI
+        maxResults: the maximum amount of results to return
+        options:  Relevant options for ARIA frame types (see `AriaOptions` class for available args)
+
+    Returns:
+        A list of `Frame` objects over the provided AOI.
+    """
+    if isinstance(intersectsWith, str):
+        intersectsWith, _, __ = validate_wkt(intersectsWith)
+    return [
+        Frame(
+            id=str(frame.id),
+            polygon=frame.polygon,
+            flight_direction=frame.flight_direction,
+            type='ARIA',
+            metadata=AriaMetadata(),
+        )
+        for frame in get_frames(
+            intersectsWith,  # type: ignore[arg-type] # mypy doesn't recognize this won't be a str
+            **options,  # type: ignore[unused-ignore]
+        )[:maxResults]
+    ]
 
 
 def _gunw_dates_match(granule: str, reference: datetime.date, secondary: datetime.date) -> bool:
