@@ -23,7 +23,6 @@ def get_slc_burst_ids(
         maxResults: How many frames to limit results to
 
     """
-    kwargs = locals()
     burstmap = 'Sentinel-1_Burst_Map'
 
     # TODO: remove this when asf-search actually supports taking BaseGeometry objects
