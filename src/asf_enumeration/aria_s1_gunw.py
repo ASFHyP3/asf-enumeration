@@ -9,16 +9,19 @@ from dataclasses import dataclass
 
 import asf_search as asf
 import shapely
+from asf_search.WKT.validate_wkt import validate_wkt
 from shapely import ops
+
+from asf_enumeration.frame import AriaMetadata, Frame, Options
 
 
 FlightDirections = typing.Literal['ASCENDING', 'DESCENDING']
 S1C_CALIBRATION_DATE = datetime.datetime(
-    2025, 5, 19, tzinfo=datetime.timezone.utc
+    2025, 5, 19, tzinfo=datetime.UTC
 ).date()  # https://sentinels.copernicus.eu/-/sentinel-1c-products-are-now-calibrated
 
 # https://sentinels.copernicus.eu/web/sentinel/-/sentinel-1d-user-data-opening-from-17-april-2026
-S1D_CALIBRATION_DATE = datetime.datetime(2026, 4, 17, tzinfo=datetime.timezone.utc).date()
+S1D_CALIBRATION_DATE = datetime.datetime(2026, 4, 17, tzinfo=datetime.UTC).date()
 
 
 @dataclass(frozen=True)
@@ -37,7 +40,7 @@ class AriaFrame:
     flight_direction: FlightDirections
     polygon: shapely.Polygon
 
-    def does_intersect(self, geometry: shapely.Geometry) -> bool:
+    def does_intersect(self, geometry: shapely.geometry.base.BaseGeometry | shapely.Geometry) -> bool:
         """Check if geometry intersects ARIA frame.
 
         Args:
@@ -127,7 +130,9 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 
 
 def get_frames(
-    geometry: shapely.Geometry | None = None, flight_direction: FlightDirections | None = None, path: int | None = None
+    geometry: shapely.geometry.base.BaseGeometry | shapely.Geometry | None = None,
+    flight_direction: FlightDirections | None = None,
+    path: int | None = None,
 ) -> list[AriaFrame]:
     """Get all ARIA frames that match filter parameters.
 
@@ -318,6 +323,36 @@ def get_product(
         return None
 
     return max(results, key=lambda product: product.meta['revision-date'])
+
+
+def get_aria_frame_ids(
+    intersectsWith: shapely.geometry.base.BaseGeometry | str, maxResults: int, options: Options
+) -> list[Frame]:
+    """Wrapper method for get_frames() for use with `frame_query()`, returns output as generic `Frame` class.
+
+    Args:
+        intersectsWith: desired WKT or shapely geometry AOI
+        maxResults: the maximum amount of results to return
+        options:  Relevant options for ARIA frame types (see `AriaOptions` class for available args)
+
+    Returns:
+        A list of `Frame` objects over the provided AOI.
+    """
+    if isinstance(intersectsWith, str):
+        intersectsWith, _, __ = validate_wkt(intersectsWith)
+    return [
+        Frame(
+            id=str(frame.id),
+            polygon=frame.polygon,
+            flight_direction=frame.flight_direction,
+            type='ARIA',
+            metadata=AriaMetadata(),
+        )
+        for frame in get_frames(
+            intersectsWith,  # type: ignore[arg-type] # mypy doesn't recognize this won't be a str
+            **options,  # type: ignore[unused-ignore]
+        )[:maxResults]
+    ]
 
 
 def _gunw_dates_match(granule: str, reference: datetime.date, secondary: datetime.date) -> bool:
